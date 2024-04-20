@@ -46,9 +46,13 @@ func extractID(
 	computed := idValue.IsComputed()
 	contract.Assertf(!computed, "Unexpected computed PropertyValue in state. %s", errSuffix)
 
-	contract.Assertf(idValue.IsString(),
-		"Resource state 'id' property expected to be a string but %v was given. %s",
+	contract.Assertf(idValue.IsString() || idValue.IsNumber(),
+		"Resource state 'id' property expected to be a string or number but %v was given. %s",
 		idValue, errSuffix)
 
-	return resource.ID(idValue.StringValue()), nil
+	if idValue.IsString() {
+		return resource.ID(idValue.StringValue()), nil
+	} else {
+		return resource.ID(fmt.Sprintf("%.0f", idValue.NumberValue())), nil
+	}
 }
