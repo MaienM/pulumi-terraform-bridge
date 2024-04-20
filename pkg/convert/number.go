@@ -17,6 +17,7 @@ package convert
 import (
 	"fmt"
 	"math/big"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 
@@ -41,9 +42,17 @@ func (*numberEncoder) fromPropertyValue(p resource.PropertyValue) (tftypes.Value
 	if p.IsNull() {
 		return tftypes.NewValue(tftypes.Number, nil), nil
 	}
+	if p.IsString() {
+		n, err := strconv.Atoi(p.StringValue())
+		if err != nil {
+			return tftypes.NewValue(tftypes.Number, nil),
+				fmt.Errorf("Unable to convert %v to a number", p.StringValue())
+		}
+		return tftypes.NewValue(tftypes.Number, n), nil
+	}
 	if !p.IsNumber() {
 		return tftypes.NewValue(tftypes.Number, nil),
-			fmt.Errorf("Expected a Number")
+			fmt.Errorf("Expected a Number, got %v instead", p.TypeString())
 	}
 	return tftypes.NewValue(tftypes.Number, p.NumberValue()), nil
 }

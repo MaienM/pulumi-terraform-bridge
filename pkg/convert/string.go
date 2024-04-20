@@ -16,6 +16,7 @@ package convert
 
 import (
 	"fmt"
+	"math/big"
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
@@ -95,8 +96,12 @@ func (*stringDecoder) toPropertyValue(v tftypes.Value) (resource.PropertyValue, 
 	}
 	var s string
 	if err := v.As(&s); err != nil {
-		return resource.PropertyValue{},
-			fmt.Errorf("tftypes.Value.As(string) failed: %w", err)
+		var n big.Float
+		if err2 := v.As(&n); err2 != nil {
+			return resource.PropertyValue{},
+				fmt.Errorf("tftypes.Value.As(string) failed: %w & %w", err, err2)
+		}
+		s = n.String()
 	}
 	return resource.NewStringProperty(s), nil
 }
