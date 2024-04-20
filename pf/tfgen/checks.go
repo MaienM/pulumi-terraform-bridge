@@ -54,8 +54,8 @@ func resourceHasRegularID(resource shim.Resource) (bool, string) {
 	if !gotID {
 		return false, `no "id" attribute`
 	}
-	if idSchema.Type() != shim.TypeString {
-		return false, `"id" attribute is not of type String`
+	if idSchema.Type() != shim.TypeString && idSchema.Type() != shim.TypeInt {
+		return false, `"id" attribute is not of type String or Int`
 	}
 	if idSchema.Sensitive() {
 		return false, `"id" attribute is sensitive`
